@@ -2,9 +2,9 @@ from mixeval.models.base_api import APIModelBase
 from mixeval.utils.registry import register_model
 
 
-@register_model("gpt_4o")
-class GPT_4o(APIModelBase):
-    model_name: str = 'gpt-4o-2024-05-13'
+@register_model("llama_405b_instruct")
+class Llama405B_instruct(APIModelBase):
+    model_name: str = "accounts/fireworks/models/llama-v3p1-405b-instruct"
 
 
 if __name__ == "__main__":
@@ -18,6 +18,6 @@ if __name__ == "__main__":
     ).get()
     print(dataset_row)
 
-    gpt_4o = GPT_4o()
+    gpt_4o = Llama405B_instruct()
     output = asyncio.run(gpt_4o.predict(**dict(dataset_row)))
     print(output)
