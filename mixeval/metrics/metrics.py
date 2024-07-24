@@ -152,8 +152,6 @@ class MixEvalScorer(Scorer):
          - score_rows: a WeaveList object, nested dict of metrics and scores
         Returns:
          - nested dict with the same structure as the input"""
-        
-        print("INSIDE SUMMARIZER")
 
         _score_dict_model = {}
         for score_row in score_rows:
