@@ -3,11 +3,11 @@ import numpy as np
 import weave
 from weave.flow.scorer import Scorer
 
-from mixeval.judge_models.judge import GPTJudge
+from mixeval.judge_models.judge_freeform import GPTJudgeFreeForm
 
 
 class FreeForm(Scorer):
-    llm_judge: GPTJudge = GPTJudge()
+    llm_judge: GPTJudgeFreeForm = GPTJudgeFreeForm()
 
     @weave.op()
     async def score(self, model_output: dict) -> dict:

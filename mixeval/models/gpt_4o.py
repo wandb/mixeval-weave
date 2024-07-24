@@ -13,9 +13,7 @@ if __name__ == "__main__":
 
     weave.init("ayush-thakur/weave-mixeval")
 
-    dataset_row = weave.ref(
-        "weave:///ayush-thakur/weave-mixeval/object/mixeval-hard_free-form.json:o5E0ga2MNzNeP1YwLkKwpexcsUg2FlFPQX0THWKfBYI/attr/rows/id/BnBZpkEigMohZMYpAs33nvYza8rgYKOhZRbPiUxGguc"
-    ).get()
+    dataset_row = weave.ref("weave:///ayush-thakur/weave-mixeval/object/mixeval-hard_multiple-choice.json:1KFc1sZp8hnt6wcE0jt9E2FqGNQ1Y45XFgqctNF8CqQ/attr/rows/id/X55fPUDKvUvHRyGcGwduF1kJ2nGX3jerHwCq6TqZsqo").get()
     print(dataset_row)
 
     gpt_4o = GPT_4o()

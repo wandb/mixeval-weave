@@ -14,7 +14,10 @@ load_dotenv()
 import weave
 
 from openai._exceptions import RateLimitError
-from mixeval.prompts.evaluation_prompts import construct_prompt_freeform
+from mixeval.prompts.evaluation_prompts import (
+    construct_prompt_freeform,
+    construct_prompt_multichoice
+)
 
 # client = OpenAI(
 #     api_key=os.getenv('k_oai'),
@@ -95,6 +98,7 @@ class APIModelBase(weave.Model):
         prompt: str,
         target: list,
         benchmark_name: str,
+        options: list | None = None,
     ):
         input = dict(
             problem_type=problem_type,
@@ -103,8 +107,16 @@ class APIModelBase(weave.Model):
             context=context,
             target=target,
         )
+        if options:
+            input.update({"options": options})
 
-        formated_input = construct_prompt_freeform(input)
+        if problem_type == "free-form":
+            formated_input = construct_prompt_freeform(input)
+        elif problem_type == "multiple-choice":
+            formated_input = construct_prompt_multichoice(input)
+        else:
+            raise NotImplementedError
+
         annotation = await self.decode([self.get_user_message(formated_input)])
 
         if annotation == "Error":

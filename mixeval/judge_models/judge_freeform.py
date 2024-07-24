@@ -41,7 +41,7 @@ def get_score_from_judge(judge_response):
     return float(rating)
 
 
-class GPTJudge:
+class GPTJudgeFreeForm:
     judge_model: str = "gpt-3.5-turbo-0125"
     FIX_INTERVAL_SECOND: int = 0
     MAX_RETRY_NUM: int = 99
@@ -157,6 +157,6 @@ if __name__ == "__main__":
     output = asyncio.run(gpt_4o.predict(**dict(dataset_row)))
     print(output)
 
-    model_judge = GPTJudge()
+    model_judge = GPTJudgeFreeForm()
     judged_output = asyncio.run(model_judge.predict(output))
     print(judged_output)
