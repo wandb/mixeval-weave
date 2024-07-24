@@ -39,8 +39,27 @@ def get_option_from_judge(judge_response):
         
     return str(option)
 
+
 def is_option(variable):
     return isinstance(variable, str) and len(variable) == 1 and variable.isupper()
+
+
+@weave.op()
+def eval_multi_choice(gold_i, pred_i):
+    """
+    Evaluate a multiple choice instance.
+    """
+    correct = False
+    # only they are exactly the same, we consider it as correct
+    if isinstance(gold_i, list):
+        for answer in gold_i:
+            if answer == pred_i:
+                correct = True
+                break
+    else: # gold_i is a string
+        if gold_i == pred_i:
+            correct = True
+    return correct
 
 
 class GPTJudgeMultiChoice:
@@ -116,6 +135,10 @@ class GPTJudgeMultiChoice:
         prompt = inputs["prompt"]
         options = inputs["options"]
         response = inputs["response"]
+        target = inputs["target"]
+
+        assert isinstance(target, list) and len(target) == 1, \
+                f"Invalid target: {target}"
 
         if not isinstance(options, list):
             print(f"Invalid target: {options}")
@@ -136,7 +159,16 @@ class GPTJudgeMultiChoice:
             return inputs
         annotation = completion.choices[0].message.content
         inputs["judge_response"] = annotation
-        inputs["judge_option"] = option
+
+        if option is None or option==-1:
+            option_letters = [chr(ord("A") + i) for i in range(len(options))]
+            option = random.choice(option_letters)
+
+        all_choices = [chr(ord("A") + i) for i in range(len(options))]
+        target_id = all_choices[target[0]]
+        judge_score = 1 if eval_multi_choice(target_id, option) else 0
+
+        inputs["judge_pred"] = int(judge_score)
 
         return inputs
 

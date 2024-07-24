@@ -106,9 +106,10 @@ class APIModelBase(weave.Model):
             benchmark_name=benchmark_name,
             context=context,
             target=target,
+            options=options if options is not None else []
         )
-        if options:
-            input.update({"options": options})
+        # if options:
+        #     input.update({"options": options})
 
         if problem_type == "free-form":
             formated_input = construct_prompt_freeform(input)

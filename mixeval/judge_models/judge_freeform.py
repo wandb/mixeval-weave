@@ -135,7 +135,10 @@ class GPTJudgeFreeForm:
             return inputs
         annotation = completion.choices[0].message.content
         inputs["judge_response"] = annotation
-        inputs["judge_score"] = score
+
+        if score is None or score==-1:
+            score = round(random.random(), 1)
+        inputs["judge_pred"] = score
 
         return inputs
 
