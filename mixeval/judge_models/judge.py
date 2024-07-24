@@ -1,9 +1,12 @@
 import os
+import re
+import ast
 import time
 import random
 from httpx import Timeout
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from openai import AsyncOpenAI
@@ -16,6 +19,26 @@ from mixeval.prompts.judge_prompts import gpt_judge_for_closeended_freeform
 client = AsyncOpenAI(
     api_key=os.getenv("MODEL_PARSER_API"), timeout=Timeout(timeout=60.0, connect=5.0)
 )
+
+
+@weave.op()
+def get_score_from_judge(judge_response):
+    """
+    Get the score from the judge response.
+    """
+    one_score_pattern = re.compile("\[\[(\d+\.?\d*)\]\]")
+    one_score_pattern_backup = re.compile("\[(\d+\.?\d*)\]")
+
+    match = re.search(one_score_pattern, judge_response)
+    if not match:
+        match = re.search(one_score_pattern_backup, judge_response)
+
+    if match:
+        rating = ast.literal_eval(match.groups()[0])
+    else:
+        rating = -1
+    
+    return float(rating)
 
 
 class GPTJudge:
@@ -51,7 +74,12 @@ class GPTJudge:
         for i in range(self.MAX_RETRY_NUM):
             try:
                 completion = await self._GPT_decode(inputs)
-                return completion
+                # try to parse the score
+                score = get_score_from_judge(completion.choices[0].message.content)
+                if score == -1:
+                    continue
+                else:
+                    return completion, score
             except RateLimitError as e:
                 exponential_base = 2
                 delay *= exponential_base * (1 + random.random())
@@ -65,7 +93,7 @@ class GPTJudge:
                 blocked += 1
                 if blocked >= 10:
                     print("Blocked too many times, skipping...")
-                    return "Blocked"
+                    return "Blocked", -1
                 print(f"Input is blocked, retrying...")
                 print(e)
                 time.sleep(1)
@@ -75,17 +103,18 @@ class GPTJudge:
                 print(e)
                 time.sleep(1)
                 continue
+
         print(f"Failed after {self.MAX_RETRY_NUM} retries.")
-        return "Error"
+        return "Error", -1
 
     @weave.op()
     async def predict(
         self,
         inputs: dict,
     ):
-        prompt = inputs['prompt']
-        target = inputs['target']
-        response = inputs['response']
+        prompt = inputs["prompt"]
+        target = inputs["target"]
+        response = inputs["response"]
 
         if not isinstance(target, list):
             print(f"Invalid target: {target}")
@@ -93,17 +122,21 @@ class GPTJudge:
 
         _input = (prompt, target, response)
 
-        completion = await self.GPT_decode(_input)
+        completion, score = await self.GPT_decode(_input)
         if completion == "Error":
             print(f"Error in GPT_decode, the entry {_input} will be retried later...")
             inputs["judge_response"] = None
+            inputs["judge_score"] = score
             return inputs
         elif completion == "Blocked":
             print(f"{input}: \n\nBlocked, the entry treated as bad entry.")
             inputs["judge_response"] = "[[0.0]]"
+            inputs["judge_score"] = score
             return inputs
         annotation = completion.choices[0].message.content
         inputs["judge_response"] = annotation
+        inputs["judge_score"] = score
+
         return inputs
 
 
