@@ -1,0 +1,4 @@
+.env
+wandb/
+__pycache__/
+mixeval_weave.egg-info
