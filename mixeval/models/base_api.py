@@ -19,6 +19,8 @@ from mixeval.prompts.evaluation_prompts import (
     construct_prompt_multichoice
 )
 
+import anthropic
+
 # client = OpenAI(
 #     api_key=os.getenv('k_oai'),
 #     timeout=Timeout(timeout=100.0, connect=20.0)

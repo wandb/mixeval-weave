@@ -126,12 +126,12 @@ class GPTJudgeFreeForm:
         if completion == "Error":
             print(f"Error in GPT_decode, the entry {_input} will be retried later...")
             inputs["judge_response"] = None
-            inputs["judge_score"] = score
+            inputs["judge_pred"] = score
             return inputs
         elif completion == "Blocked":
             print(f"{input}: \n\nBlocked, the entry treated as bad entry.")
             inputs["judge_response"] = "[[0.0]]"
-            inputs["judge_score"] = score
+            inputs["judge_pred"] = score
             return inputs
         annotation = completion.choices[0].message.content
         inputs["judge_response"] = annotation
