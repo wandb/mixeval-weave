@@ -26,10 +26,10 @@ import anthropic
 #     timeout=Timeout(timeout=100.0, connect=20.0)
 # )
 
-client = AsyncOpenAI(
-    api_key=os.getenv('k_oai'),
-    timeout=Timeout(timeout=100.0, connect=20.0)
-)
+# client = AsyncOpenAI(
+#     api_key=os.getenv('k_oai'),
+#     timeout=Timeout(timeout=100.0, connect=20.0)
+# )
 
 # client = OpenAI(
 #     base_url = "https://api.fireworks.ai/inference/v1",
@@ -37,11 +37,11 @@ client = AsyncOpenAI(
 #     timeout=Timeout(timeout=100.0, connect=20.0)
 # )
 
-# client = AsyncOpenAI(
-#     base_url = "https://api.fireworks.ai/inference/v1",
-#     api_key=os.getenv('FIREWORKS_API_KEY'),
-#     timeout=Timeout(timeout=100.0, connect=20.0)
-# )
+client = AsyncOpenAI(
+    base_url = "https://api.fireworks.ai/inference/v1",
+    api_key=os.getenv('FIREWORKS_API_KEY'),
+    timeout=Timeout(timeout=100.0, connect=20.0)
+)
 
 
 class APIModelBase(weave.Model):
